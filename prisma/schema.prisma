@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String        @unique
+  passwordHash String
+  projects     Project[]
+  timeEntries  TimeEntry[]
+  settings     UserSettings?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Project {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String      @db.ObjectId
+  user        User        @relation(fields: [userId], references: [id])
+  name        String
+  clientName  String?
+  hourlyRate  Float?
+  color       String?
+  isActive    Boolean     @default(true)
+  timeEntries TimeEntry[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([userId])
+}
+
+model TimeEntry {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+  projectId   String   @db.ObjectId
+  project     Project  @relation(fields: [projectId], references: [id])
+  entryType   String   @default("timer")
+  description String?
+  startAt     DateTime
+  endAt       DateTime?
+  durationSec Int
+  billable    Boolean
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([projectId])
+}
+
+model UserSettings {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @unique @db.ObjectId
+  user            User     @relation(fields: [userId], references: [id])
+  timeFormat      String   @default("24h")
+  weekStartDay    Int      @default(1)
+  theme           String   @default("system")
+  defaultBillable Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
