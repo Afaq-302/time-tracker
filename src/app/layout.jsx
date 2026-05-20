@@ -2,8 +2,8 @@ import "../globals.css";
 import { Providers } from "./providers";
 
 export const metadata = {
-  title: "Lovable App",
-  description: "Lovable Generated Project",
+  title: "Time-Tracker  By Afaq",
+  description: "Track time, stay productive, and keep things organized.",
 };
 
 export default function RootLayout({ children }) {
